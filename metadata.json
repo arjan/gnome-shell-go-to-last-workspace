@@ -2,6 +2,6 @@
     "name": "Go To Last Workspace",
     "uuid": "gnome-shell-go-to-last-workspace@github.com",
     "shell-version": ["3.20"],
-    "description": "Move back to the previous workspace",
+    "description": "Quickly toggle between two workspaces with one key",
     "settings-schema": "org.gnome.shell.extensions.go-to-last-workspace"
 }
