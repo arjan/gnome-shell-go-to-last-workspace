@@ -8,4 +8,4 @@ It installs a keybinding which defaults to <Super>escape. Repeatedly
 pressing <Super>escape causes the active workspace to toggle between
 the last two selected workspaces.
 
-Only tested with Gnome version 3.20.
+Only tested with Gnome version 3.30.
