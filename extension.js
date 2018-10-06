@@ -17,7 +17,8 @@ function goToLastWorkspace() {
     return;
   }
 
-  let ws = global.screen.get_workspace_by_index(lastWorkspace);
+  // keep global.screen for backwards compatibility
+  let ws = (global.screen || global.workspace_manager).get_workspace_by_index(lastWorkspace);
   ws.activate(0);
 }
 
@@ -31,7 +32,7 @@ function enable() {
   var ModeType = Shell.hasOwnProperty('ActionMode') ? Shell.ActionMode : Shell.KeyBindingMode;
   Main.wm.addKeybinding(SHORTCUT_KEY, settings, Meta.KeyBindingFlags.NONE, ModeType.NORMAL | ModeType.OVERVIEW, goToLastWorkspace);
 
-  signals.push(global.screen.connect('workspace-switched', function(screen, prev, current, direction) {
+  signals.push((global.screen || global.workspace_manager).connect('workspace-switched', function(display, prev, current, direction) {
     lastWorkspace = currentWorkspace;
     currentWorkspace = current;
   }));
@@ -43,9 +44,7 @@ function disable() {
   
   let i = signals.length;
   while (i--) {
-    global.screen.disconnect(signals.pop());
+    (global.screen || global.workspace_manager).disconnect(signals.pop());
   }
   
 }
-
-
