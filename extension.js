@@ -4,10 +4,7 @@ const Shell = imports.gi.Shell;
 
 const SHORTCUT_KEY = 'shortcut-key';
 
-const Self = imports.misc.extensionUtils.getCurrentExtension();
-const Convenience = Self.imports.convenience;
-
-let settings = Convenience.getSettings();
+let settings = imports.misc.extensionUtils.getSettings();
 
 var currentWorkspace = -1;
 var lastWorkspace = -1;
