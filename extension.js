@@ -19,7 +19,7 @@ function goToLastWorkspace() {
 
   // keep global.screen for backwards compatibility
   let ws = (global.screen || global.workspace_manager).get_workspace_by_index(lastWorkspace);
-  ws.activate(0);
+  ws.activate(global.get_current_time());
 }
 
 
@@ -41,10 +41,10 @@ function enable() {
 function disable() {
   // clean up
   Main.wm.removeKeybinding(SHORTCUT_KEY);
-  
+
   let i = signals.length;
   while (i--) {
     (global.screen || global.workspace_manager).disconnect(signals.pop());
   }
-  
+
 }
