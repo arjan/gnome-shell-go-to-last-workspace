@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="gnome-shell-extensions">
     <schema path="/org/gnome/shell/extensions/go-to-last-workspace/" id="org.gnome.shell.extensions.go-to-last-workspace">
-
         <key name="shortcut-key" type="as">
             <default><![CDATA[['<Super>escape']]]></default>
             <summary>Keybinding switch to last workspace</summary>
@@ -9,7 +8,5 @@
                 The keybinding used to switch to the last used workspace.
             </description>
         </key>
-
     </schema>
 </schemalist>
-
