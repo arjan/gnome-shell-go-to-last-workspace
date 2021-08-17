@@ -2,10 +2,7 @@
 const GObject = imports.gi.GObject;
 const Gdk = imports.gi.Gdk;
 const Gtk = imports.gi.Gtk;
-
-// Extension imports
-const Utils = imports.misc.extensionUtils.getCurrentExtension().imports.utils;
-const mySettings = Utils.getSettings();
+const ExtensionUtils = imports.misc.extensionUtils;
 
 // Globals
 const pretty_names = {
@@ -24,7 +21,7 @@ function buildPrefsWidget() {
     GObject.TYPE_INT,
   ]);
 
-  let settings = Utils.getSettings();
+  let settings = ExtensionUtils.getSettings();
 
   for (key in pretty_names) {
     append_hotkey(model, settings, key, pretty_names[key]);
