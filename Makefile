@@ -3,6 +3,7 @@ PKG=$(shell basename $(PWD))
 DEST=../$(PKG)-$(VSN).zip
 
 release:
-	@rm -f ../$(DEST)
-	@git archive --format=zip -o $(DEST) master
+	rm -f ../$(DEST)
+	glib-compile-schemas schemas
+	zip -r $(DEST) *.json *.js schemas
 	@echo "Written $(DEST)"
