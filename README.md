@@ -7,7 +7,7 @@ It installs a keybinding which defaults to `<Super>escape`. Repeatedly
 pressing the shortcut key causes the active workspace to toggle
 between the last two selected workspaces.
 
-Tested with Gnome version 40 through 3.28.
+Tested with Gnome version 44 through 3.28.
 
 ## Adjusting the shortcut key
 
