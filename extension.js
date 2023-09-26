@@ -1,47 +1,64 @@
-const Meta = imports.gi.Meta;
-const Main = imports.ui.main;
-const Shell = imports.gi.Shell;
+import Meta from "gi://Meta";
+import Shell from "gi://Shell";
 
-const SHORTCUT_KEY = 'shortcut-key';
+import * as Main from "resource:///org/gnome/shell/ui/main.js";
 
-let settings = imports.misc.extensionUtils.getSettings();
+import {
+  Extension,
+  gettext as _,
+} from "resource:///org/gnome/shell/extensions/extension.js";
 
-var currentWorkspace = -1;
-var lastWorkspace = -1;
+// Globals
+const SHORTCUT_KEY = "shortcut-key";
 
-function goToLastWorkspace() {
-  if (lastWorkspace < 0) {
-    return;
+let currentWorkspace = 0;
+let lastWorkspace = -1;
+
+export default class GoToLastWorkspace extends Extension {
+  signals = [];
+  enable() {
+    this._settings = this.getSettings();
+
+    const ModeType = Shell.hasOwnProperty("ActionMode")
+      ? Shell.ActionMode
+      : Shell.KeyBindingMode;
+
+    Main.wm.addKeybinding(
+      SHORTCUT_KEY,
+      this._settings,
+      Meta.KeyBindingFlags.NONE,
+      ModeType.NORMAL | ModeType.OVERVIEW,
+      this._goToLastWorkspace,
+    );
+
+    this.signals.push(
+      global.workspace_manager.connect(
+        "workspace-switched",
+        function (display, prev, current, direction) {
+          lastWorkspace = currentWorkspace;
+          currentWorkspace = current;
+        },
+      ),
+    );
   }
 
-  // keep global.screen for backwards compatibility
-  let ws = (global.screen || global.workspace_manager).get_workspace_by_index(lastWorkspace);
-  ws.activate(global.get_current_time());
-}
+  disable() {
+    // clean up
+    this._settings = null;
+    Main.wm.removeKeybinding(SHORTCUT_KEY);
 
-
-function init() {
-}
-
-let signals = [];
-
-function enable() {
-  var ModeType = Shell.hasOwnProperty('ActionMode') ? Shell.ActionMode : Shell.KeyBindingMode;
-  Main.wm.addKeybinding(SHORTCUT_KEY, settings, Meta.KeyBindingFlags.NONE, ModeType.NORMAL | ModeType.OVERVIEW, goToLastWorkspace);
-
-  signals.push((global.screen || global.workspace_manager).connect('workspace-switched', function(display, prev, current, direction) {
-    lastWorkspace = currentWorkspace;
-    currentWorkspace = current;
-  }));
-}
-
-function disable() {
-  // clean up
-  Main.wm.removeKeybinding(SHORTCUT_KEY);
-
-  let i = signals.length;
-  while (i--) {
-    (global.screen || global.workspace_manager).disconnect(signals.pop());
+    let i = this.signals.length;
+    while (i--) {
+      global.workspace_manager.disconnect(this.signals.pop());
+    }
   }
 
+  _goToLastWorkspace() {
+    if (lastWorkspace < 0) {
+      return;
+    }
+
+    let ws = global.workspace_manager.get_workspace_by_index(lastWorkspace);
+    ws.activate(global.get_current_time());
+  }
 }
