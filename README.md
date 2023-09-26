@@ -3,11 +3,29 @@
 Extension for the Gnome Shell to quickly toggle between the two last
 workspaces with a single key (Super+Escape).
 
-It installs a keybinding which defaults to `<Super>escape`. Repeatedly
+It installs a keybinding which defaults to `<Super>Escape`. Repeatedly
 pressing the shortcut key causes the active workspace to toggle
 between the last two selected workspaces.
 
-Tested with Gnome version 44 through 3.28.
+**NOTE:** This latest version v11 of the extension works only supports Gnome 45.
+
+## Installation
+
+### For latest release supporting Gnome 45:
+
+Use GNU make:
+
+    make install
+
+To just pack/build the extension without installation
+
+    make build
+
+### For Gnome verions 3.28 to 44:
+
+* Grab the extension from **[Gnome Extensions](https://extensions.gnome.org/extension/1089/go-to-last-workspace/)**
+
+* Manual : Grab the latest release and unzip to `.local/share/gnome-shell/extensions/gnome-shell-go-to-last-workspace@github.com/`
 
 ## Adjusting the shortcut key
 
@@ -16,7 +34,7 @@ From extension version 6 it is possible to change the shortcut key using an exte
 Alternatively, to change the default shortcut run something like this:
 
     gsettings --schemadir $HOME/.local/share/gnome-shell/extensions/gnome-shell-go-to-last-workspace@github.com/schemas \
-    set org.gnome.shell.extensions.go-to-last-workspace shortcut-key "['<Super>w','<Alt>F1']"
+    set org.gnome.shell.extensions.go-to-last-workspace shortcut-key "['<Super>Tab']"
 
 ## Older Gnome versions (manual extension installation)
 
@@ -44,7 +62,7 @@ If you by some reason need run this awesome extension on ancient Gnome 3.20, e.g
 
 5. Set the default hotkey:
 
-`$ gsettings --schemadir ~/.local/share/gnome-shell/extensions/gnome-shell-go-to-last-workspace@github.com/schemas set org.gnome.shell.extensions.go-to-last-workspace shortcut-key "['<Super>escape']"`
+`$ gsettings --schemadir ~/.local/share/gnome-shell/extensions/gnome-shell-go-to-last-workspace@github.com/schemas set org.gnome.shell.extensions.go-to-last-workspace shortcut-key "['<Super>Escape']"`
 
 6. Restart Gnome Shell:
 
