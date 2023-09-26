@@ -1,9 +1,15 @@
-VSN=$(shell cat metadata.json | jq '.version')
-PKG=$(shell basename $(PWD))
-DEST=../$(PKG)-$(VSN).zip
+UUID = gnome-shell-go-to-last-workspace@github.com
 
-release:
-	rm -f ../$(DEST)
-	glib-compile-schemas schemas
-	zip -r $(DEST) *.json *.js schemas
-	@echo "Written $(DEST)"
+build:   clean
+			   mkdir -p build/
+			   gnome-extensions pack -f -o build/
+
+install: build remove
+				 gnome-extensions install -f build/$(UUID).shell-extension.zip
+
+remove:
+				 rm -rf $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
+
+
+clean:
+			   rm -rf build/
