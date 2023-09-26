@@ -1,82 +1,110 @@
-// Library imports
-const GObject = imports.gi.GObject;
-const Gdk = imports.gi.Gdk;
-const Gtk = imports.gi.Gtk;
-const ExtensionUtils = imports.misc.extensionUtils;
+import Adw from "gi://Adw";
+import Gdk from "gi://Gdk";
+import Gtk from "gi://Gtk";
 
-// Globals
-const pretty_names = {
-  "shortcut-key": "Go to last workspace",
+import {
+  ExtensionPreferences,
+  gettext as _,
+} from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
+
+export default class GoToLastWorkspacePrefs extends ExtensionPreferences {
+  fillPreferencesWindow(window) {
+    window._settings = this.getSettings();
+
+    const page = Adw.PreferencesPage.new();
+    const group = Adw.PreferencesGroup.new();
+    page.add(group);
+
+    // Shortcut
+    let rowShortcut = new Adw.ActionRow({
+      title: _("Shortcut Key"),
+      subtitle: _("Shortcut to go to last workspace"),
+    });
+
+    const shortcutLabel = new Gtk.ShortcutLabel({
+      disabled_text: _("Select a shortcut"),
+      accelerator: window._settings.get_strv("shortcut-key")[0],
+      valign: Gtk.Align.CENTER,
+      halign: Gtk.Align.CENTER,
+    });
+
+    window._settings.connect("changed::shortcut-key", () => {
+      shortcutLabel.set_accelerator(
+        window._settings.get_strv("shortcut-key")[0],
+      );
+    });
+
+    rowShortcut.connect("activated", () => {
+      const ctl = new Gtk.EventControllerKey();
+      const content = new Adw.StatusPage({
+        title: _("New Shortcut"),
+        description: _("The shortcut will be accepted only if it is not already in use."),
+        icon_name: "preferences-desktop-keyboard-shortcuts-symbolic",
+      });
+      const editor = new Adw.Window({
+        modal: true,
+        transient_for: page.get_root(),
+        hide_on_close: true,
+        width_request: 320,
+        height_request: 240,
+        resizable: false,
+        content,
+      });
+      editor.add_controller(ctl);
+      ctl.connect("key-pressed", (_, keyval, keycode, state) => {
+        let mask = state & Gtk.accelerator_get_default_mod_mask();
+        mask &= ~Gdk.ModifierType.LOCK_MASK;
+        if (!mask && keyval === Gdk.KEY_Escape) {
+          editor.close();
+          return Gdk.EVENT_STOP;
+        }
+        if (!isValidBinding$1(mask, keyval) || !isValidAccel$1(mask, keyval)) {
+          return Gdk.EVENT_STOP;
+        }
+        window._settings.set_strv("shortcut-key", [
+          Gtk.accelerator_name_with_keycode(null, keyval, keycode, mask),
+        ]);
+        editor.destroy();
+        return Gdk.EVENT_STOP;
+      });
+      editor.present();
+    });
+
+    rowShortcut.add_suffix(shortcutLabel);
+    rowShortcut.activatable_widget = shortcutLabel;
+    group.add(rowShortcut);
+
+    window.add(page);
+  }
+}
+
+const isValidAccel$1 = (mask, keyval) => {
+  return (
+    Gtk.accelerator_valid(keyval, mask) ||
+    (keyval === Gdk.KEY_Tab && mask !== 0)
+  );
 };
 
-function init() {}
-
-function buildPrefsWidget() {
-  let model = new Gtk.ListStore();
-
-  model.set_column_types([
-    GObject.TYPE_STRING,
-    GObject.TYPE_STRING,
-    GObject.TYPE_INT,
-    GObject.TYPE_INT,
-  ]);
-
-  let settings = ExtensionUtils.getSettings();
-
-  for (key in pretty_names) {
-    append_hotkey(model, settings, key, pretty_names[key]);
-  }
-
-  let treeview = new Gtk.TreeView({
-    model: model,
-  });
-
-  let col;
-  let cellrend;
-  cellrend = new Gtk.CellRendererText();
-  col = new Gtk.TreeViewColumn({
-    title: "Keybinding",
-  });
-  col.pack_start(cellrend, true);
-  col.add_attribute(cellrend, "text", 1);
-  treeview.append_column(col);
-
-  cellrend = new Gtk.CellRendererAccel({
-    editable: true,
-    "accel-mode": Gtk.CellRendererAccelMode.GTK,
-  });
-  cellrend.connect("accel-edited", function (rend, iter, key, mods) {
-    let value = Gtk.accelerator_name(key, mods);
-    log("change");
-    log(value);
-    log(key);
-    log(mods);
-    let [success, iter1] = model.get_iter_from_string(iter);
-    if (!success) {
-      throw new Error("Something be broken, yo.");
-    }
-    let name = model.get_value(iter1, 0);
-    model.set(iter1, [2, 3], [mods, key]);
-    settings.set_strv(name, [value]);
-  });
-
-  col = new Gtk.TreeViewColumn({
-    title: "Accel",
-  });
-
-  col.pack_end(cellrend, false);
-  col.add_attribute(cellrend, "accel-mods", 2);
-  col.add_attribute(cellrend, "accel-key", 3);
-  treeview.append_column(col);
-  treeview.expand_all();
-
-  return treeview;
-}
-
-function append_hotkey(model, settings, name, pretty_name) {
-  let [_something, key, mods] = Gtk.accelerator_parse(
-    settings.get_strv(name)[0]
+const isValidBinding$1 = (mask, keyval) => {
+  return !(
+    mask === 0 ||
+    (mask === Gdk.ModifierType.SHIFT_MASK &&
+      ((keyval >= Gdk.KEY_a && keyval <= Gdk.KEY_z) ||
+        (keyval >= Gdk.KEY_A && keyval <= Gdk.KEY_Z) ||
+        (keyval >= Gdk.KEY_0 && keyval <= Gdk.KEY_9) ||
+        (keyval >= Gdk.KEY_kana_fullstop &&
+          keyval <= Gdk.KEY_semivoicedsound) ||
+        (keyval >= Gdk.KEY_Arabic_comma && keyval <= Gdk.KEY_Arabic_sukun) ||
+        (keyval >= Gdk.KEY_Serbian_dje &&
+          keyval <= Gdk.KEY_Cyrillic_HARDSIGN) ||
+        (keyval >= Gdk.KEY_Greek_ALPHAaccent &&
+          keyval <= Gdk.KEY_Greek_omega) ||
+        (keyval >= Gdk.KEY_hebrew_doublelowline &&
+          keyval <= Gdk.KEY_hebrew_taf) ||
+        (keyval >= Gdk.KEY_Thai_kokai && keyval <= Gdk.KEY_Thai_lekkao) ||
+        (keyval >= Gdk.KEY_Hangul_Kiyeog &&
+          keyval <= Gdk.KEY_Hangul_J_YeorinHieuh) ||
+        (keyval === Gdk.KEY_space && mask === 0) ||
+        keyvalIsForbidden$1(keyval)))
   );
-  let row = model.insert(-1);
-  model.set(row, [0, 1, 2, 3], [name, pretty_name, mods, key]);
-}
+};
