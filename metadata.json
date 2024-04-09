@@ -3,9 +3,10 @@
   "name": "Go To Last Workspace",
   "description": "Quickly toggle between two workspaces with one key",
   "url": "https://github.com/arjan/gnome-shell-go-to-last-workspace",
-  "version": 12,
+  "version": 13,
   "shell-version": [
-    "45"
+    "45",
+    "46"
   ],
   "settings-schema": "org.gnome.shell.extensions.go-to-last-workspace"
 }
